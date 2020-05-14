@@ -138,5 +138,26 @@ inline bool operator==(const std::string &lhs, const polymorphic_string &rhs)
 	return rhs == lhs;
 }
 
+inline bool operator<(string_view lhs, const polymorphic_string &rhs)
+{
+	return rhs.compare(0U, rhs.size(), lhs.data(), lhs.size()) > 0;
+}
+
+inline bool operator<(const std::string &lhs, const polymorphic_string &rhs)
+{
+	return rhs.compare(0U, rhs.size(), lhs.c_str(), lhs.size()) > 0;
+}
+
+inline bool operator>(string_view lhs, const polymorphic_string &rhs)
+{
+	return rhs.compare(0U, rhs.size(), lhs.data(), lhs.size()) < 0;
+}
+
+inline bool operator>(const std::string &lhs, const polymorphic_string &rhs)
+{
+	return rhs.compare(0U, rhs.size(), lhs.c_str(), lhs.size()) < 0;
+}
+
+
 } /* namespace kv */
 } /* namespace pmem */
