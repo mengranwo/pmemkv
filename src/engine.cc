@@ -17,6 +17,10 @@
 #include "engines/cmap.h"
 #endif
 
+#ifdef ENGINE_SVECTOR
+#include "engines/svector.h"
+#endif
+
 #ifdef ENGINE_CACHING
 #include "engines-experimental/caching.h"
 #endif
@@ -51,6 +55,9 @@ static constexpr const char *available_engines = "blackhole"
 #endif
 #ifdef ENGINE_VCMAP
 						 ", vcmap"
+#endif
+#ifdef ENGINE_SVECTOR
+						 ", svector"
 #endif
 #ifdef ENGINE_TREE3
 						 ", tree3"
@@ -99,6 +106,13 @@ engine_base::create_engine(const std::string &engine,
 	if (engine == "vcmap") {
 		engine_base::check_config_null(engine, cfg);
 		return std::unique_ptr<engine_base>(new pmem::kv::vcmap(std::move(cfg)));
+	}
+#endif
+
+#ifdef ENGINE_SVECTOR
+	if (engine == "svector") {
+		engine_base::check_config_null(engine, cfg);
+		return std::unique_ptr<engine_base>(new pmem::kv::svector(std::move(cfg)));
 	}
 #endif
 

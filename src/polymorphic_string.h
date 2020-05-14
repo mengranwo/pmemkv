@@ -138,24 +138,24 @@ inline bool operator==(const std::string &lhs, const polymorphic_string &rhs)
 	return rhs == lhs;
 }
 
-inline bool operator<(string_view lhs, const polymorphic_string &rhs)
+inline bool operator<(const polymorphic_string &lhs, string_view rhs)
 {
-	return rhs.compare(0U, rhs.size(), lhs.data(), lhs.size()) > 0;
+	return lhs.compare(0U, lhs.size(), rhs.data(), rhs.size()) < 0;
 }
 
-inline bool operator<(const std::string &lhs, const polymorphic_string &rhs)
+inline bool operator<(const polymorphic_string &lhs, const std::string rhs)
 {
-	return rhs.compare(0U, rhs.size(), lhs.c_str(), lhs.size()) > 0;
+	return lhs.compare(0U, lhs.size(), rhs.c_str(), rhs.size()) < 0;
 }
 
-inline bool operator>(string_view lhs, const polymorphic_string &rhs)
+inline bool operator>(const polymorphic_string &lhs, string_view rhs)
 {
-	return rhs.compare(0U, rhs.size(), lhs.data(), lhs.size()) < 0;
+	return lhs.compare(0U, lhs.size(), rhs.data(), rhs.size()) > 0;
 }
 
-inline bool operator>(const std::string &lhs, const polymorphic_string &rhs)
+inline bool operator>(const polymorphic_string &lhs, const std::string rhs)
 {
-	return rhs.compare(0U, rhs.size(), lhs.c_str(), lhs.size()) < 0;
+	return lhs.compare(0U, lhs.size(), rhs.c_str(), rhs.size()) > 0;
 }
 
 

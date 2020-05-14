@@ -5,6 +5,7 @@
 #include "../out.h"
 
 #include <unistd.h>
+#include <algorithm>
 
 namespace pmem
 {
@@ -235,7 +236,6 @@ int svector::binary_search(string_view target)
 		int m = l + (r - l) / 2;
 		if (container->keys[m] == target)
 			return m;
-
 		// start the iteration
 		if (container->keys[m] < target) {
 			l = m + 1;
