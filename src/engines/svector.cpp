@@ -6,6 +6,7 @@
 
 #include <unistd.h>
 #include <algorithm>
+#include <cassert>
 
 namespace pmem
 {
@@ -15,7 +16,7 @@ namespace kv
 svector::svector(std::unique_ptr<internal::config> cfg) : pmemobj_engine_base(cfg)
 {
 	static_assert(
-		sizeof(internal::svector::string_t) == 40,
+		sizeof(internal::svector::kv_container::string_t) == 40,
 		"Wrong size of svector value and key. This probably means that std::string has size > 32");
 
 	LOG("Started ok");
@@ -37,9 +38,8 @@ status svector::count_all(std::size_t &cnt)
 	LOG("count_all");
 	check_outside_tx();
 	// check keys and values are in sync
-	static_assert(container->keys.size() == container->values.size(),
-		      "Keys and values vector must have the same size");
-	cnt = container->size();
+	assert(container->keys.size() == container->values.size());
+	cnt = container->keys.size();
 
 	return status::OK;
 }
@@ -49,8 +49,7 @@ status svector::get_all(get_kv_callback *callback, void *arg)
 	LOG("get_all");
 	check_outside_tx();
 
-	static_assert(container->keys.size() == container->values.size(),
-		      "Keys and values vector must have the same size");
+	assert(container->keys.size() == container->values.size());
 	for (unsigned i = 0; i < container->keys.size(); i++) {
 		auto ret = callback(container->keys[i].c_str(), container->keys[i].size(),
 				    container->values[i].c_str(), container->values[i].size(), arg);
@@ -68,8 +67,8 @@ status svector::get_above(string_view key, get_kv_callback *callback, void *arg)
 	LOG("get_above start key>=" << std::string(key.data(), key.size()));
 	check_outside_tx();
 	auto it = std::upper_bound(container->keys.begin(), container->keys.end(),
-				   string_t(key));
-	int index = std::distance(container->keys.begin(), it);
+				   key);
+	size_t index = static_cast<size_t>(std::distance(container->keys.begin(), it));
 
 	while (it != container->keys.end()) {
 		auto ret = callback((*it).c_str(), (*it).size(),
@@ -90,8 +89,8 @@ status svector::get_equal_above(string_view key, get_kv_callback *callback, void
 	LOG("get_equal_above start key>=" << std::string(key.data(), key.size()));
 	check_outside_tx();
 	auto it = std::lower_bound(container->keys.begin(), container->keys.end(),
-				   string_t(key));
-	int index = std::distance(container->keys.begin(), it);
+				   key);
+	size_t index = static_cast<size_t>(std::distance(container->keys.begin(), it));
 
 	while (it != container->keys.end()) {
 		auto ret = callback((*it).c_str(), (*it).size(),
@@ -112,9 +111,9 @@ status svector::get_equal_below(string_view key, get_kv_callback *callback, void
 	LOG("get_equal_above start key>=" << std::string(key.data(), key.size()));
 	check_outside_tx();
 	auto it = container->keys.begin();
-	int index = 0;
+	size_t index = 0;
 
-	while (it != container->keys->end() && !((*it) > key)) {
+	while (it != container->keys.end() && !((*it) > key)) {
 		auto ret = callback((*it).c_str(), (*it).size(),
 				    container->values[index].c_str(), container->values[index].size(), arg);
 		if (ret != 0)
@@ -132,9 +131,9 @@ status svector::get_below(string_view key, get_kv_callback *callback, void *arg)
 	LOG("get_below key<" << std::string(key.data(), key.size()));
 	check_outside_tx();
 	auto it = container->keys.begin();
-	int index = 0;
+	size_t index = 0;
 
-	while (it != container->keys->end() && ((*it) < key)) {
+	while (it != container->keys.end() && ((*it) < key)) {
 		auto ret = callback((*it).c_str(), (*it).size(),
 				    container->values[index].c_str(), container->values[index].size(), arg);
 		if (ret != 0)
@@ -163,8 +162,9 @@ status svector::get(string_view key, get_v_callback *callback, void *arg)
 		LOG("key not found");
 		return status::NOT_FOUND;
 	}
-
-	callback(container->values[index].c_str(), container->values[index].size(), arg);
+	assert(index >= 0);
+	callback(container->values[static_cast<size_t>(index)].c_str(),
+		 container->values[static_cast<size_t>(index)].size(), arg);
 	return status::OK;
 }
 
@@ -175,8 +175,8 @@ status svector::put(string_view key, string_view value)
 	check_outside_tx();
 
 	auto it = std::lower_bound(container->keys.begin(), container->keys.end(),
-				   string_t(key));
-	int index = std::distance(container->keys.begin(), it);
+				   key);
+	size_t index = static_cast<size_t>(std::distance(container->keys.begin(), it));
 
 	if(it != container->keys.end() && (*it) == key){
 		// update value
@@ -185,8 +185,8 @@ status svector::put(string_view key, string_view value)
 		});
 	} else {
 		pmem::obj::transaction::run(pmpool, [&] {
-		  container->keys.insert(it, key);
-		  container->values.insert(container->values.cbegin() + index, value);
+		  container->keys.emplace(it, key);
+		  container->values.emplace(container->values.cbegin() + index, value);
 		});
 	}
 
@@ -229,11 +229,11 @@ void svector::Recover()
 
 int svector::binary_search(string_view target)
 {
-	int l = 0;
-	int r = container->keys.size() - 1;
+	int  l = 0;
+	int  r = container->keys.size() - 1;
 
 	while (l <= r) {
-		int m = l + (r - l) / 2;
+		size_t m = l + (r - l) / 2;
 		if (container->keys[m] == target)
 			return m;
 		// start the iteration

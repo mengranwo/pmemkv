@@ -111,6 +111,16 @@ public:
 		return compare(0U, size(), rhs.c_str(), rhs.size()) == 0;
 	}
 
+	bool operator>(string_view rhs) const
+	{
+		return compare(0U, size(), rhs.data(), rhs.size()) > 0;
+	}
+
+	bool operator<(string_view rhs) const
+	{
+		return compare(0U, size(), rhs.data(), rhs.size()) < 0;
+	}
+
 	template <typename... Args>
 	int compare(Args &&... args) const
 	{
@@ -138,26 +148,15 @@ inline bool operator==(const std::string &lhs, const polymorphic_string &rhs)
 	return rhs == lhs;
 }
 
-inline bool operator<(const polymorphic_string &lhs, string_view rhs)
+inline bool operator<(string_view lhs, const polymorphic_string &rhs)
 {
-	return lhs.compare(0U, lhs.size(), rhs.data(), rhs.size()) < 0;
+	return rhs > lhs;
 }
 
-inline bool operator<(const polymorphic_string &lhs, const std::string rhs)
+inline bool operator>(string_view lhs, const polymorphic_string &rhs)
 {
-	return lhs.compare(0U, lhs.size(), rhs.c_str(), rhs.size()) < 0;
+	return rhs < lhs;
 }
-
-inline bool operator>(const polymorphic_string &lhs, string_view rhs)
-{
-	return lhs.compare(0U, lhs.size(), rhs.data(), rhs.size()) > 0;
-}
-
-inline bool operator>(const polymorphic_string &lhs, const std::string rhs)
-{
-	return lhs.compare(0U, lhs.size(), rhs.c_str(), rhs.size()) > 0;
-}
-
 
 } /* namespace kv */
 } /* namespace pmem */
