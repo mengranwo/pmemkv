@@ -59,6 +59,10 @@ int main()
 	UT_ASSERT(test_wrong_engine_name("caching"));
 #endif
 
+#ifndef ENGINE_SVECTOR
+	UT_ASSERT(test_wrong_engine_name("svector"));
+#endif
+
 	errormsg_test();
 
 	return 0;

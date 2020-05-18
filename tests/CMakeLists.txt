@@ -138,6 +138,116 @@ build_test_ext(NAME memkind_error_handling SRC_FILES engine_scenarios/memkind/er
 # Tests for C API
 build_test(c_api_null_db_config c_api/null_db_config.c)
 
+###################################### SVECTOR ####################################
+if(ENGINE_SVECTOR)
+	add_engine_test(ENGINE svector
+			BINARY c_api_null_db_config
+			TRACERS none memcheck
+			SCRIPT pmemobj_based/default.cmake)
+
+	add_engine_test(ENGINE svector
+			BINARY put_get_remove
+			TRACERS none memcheck pmemcheck
+			SCRIPT pmemobj_based/default.cmake)
+
+	add_engine_test(ENGINE svector
+			BINARY put_get_remove_long_key
+			TRACERS none memcheck pmemcheck
+			SCRIPT pmemobj_based/default.cmake)
+
+#   take very long time to run (3 mins)
+	add_engine_test(ENGINE svector
+			BINARY put_get_remove_params
+			TRACERS none memcheck pmemcheck
+			SCRIPT pmemobj_based/default.cmake
+			DB_SIZE 2G PARAMS 1000)
+
+	add_engine_test(ENGINE svector
+			BINARY put_get_std_map
+			TRACERS none memcheck pmemcheck
+			SCRIPT pmemobj_based/default.cmake
+			PARAMS 1000 100 200)
+
+#   take very long time to run
+#	add_engine_test(ENGINE svector
+#			BINARY error_handling_oom
+#			TRACERS none
+#			SCRIPT pmemobj_based/default.cmake
+#			DB_SIZE 50M)
+
+	add_engine_test(ENGINE svector
+			BINARY iterate
+			TRACERS none memcheck pmemcheck
+			SCRIPT pmemobj_based/default.cmake)
+
+	add_engine_test(ENGINE svector
+			BINARY persistent_put_get_std_map_multiple_reopen
+			TRACERS none memcheck pmemcheck
+			SCRIPT pmemobj_based/default.cmake
+			PARAMS 1000 100 200)
+
+	add_engine_test(ENGINE svector
+			BINARY persistent_not_found_verify
+			TRACERS none memcheck pmemcheck
+			SCRIPT pmemobj_based/persistent/insert_check.cmake)
+
+	add_engine_test(ENGINE svector
+			BINARY persistent_overwrite_verify
+			TRACERS none memcheck pmemcheck
+			SCRIPT pmemobj_based/persistent/insert_check.cmake)
+
+	add_engine_test(ENGINE svector
+			BINARY persistent_put_remove_verify
+			TRACERS none memcheck pmemcheck
+			SCRIPT pmemobj_based/persistent/insert_check.cmake)
+
+	add_engine_test(ENGINE svector
+			BINARY persistent_put_verify
+			TRACERS none memcheck pmemcheck
+			SCRIPT pmemobj_based/persistent/insert_check.cmake)
+
+	add_engine_test(ENGINE svector
+			BINARY persistent_put_verify_asc_params
+			TRACERS none memcheck pmemcheck
+			SCRIPT pmemobj_based/persistent/insert_check.cmake
+			DB_SIZE 2G PARAMS 1000)
+
+	add_engine_test(ENGINE svector
+			BINARY persistent_put_verify_desc_params
+			TRACERS none memcheck pmemcheck
+			SCRIPT pmemobj_based/persistent/insert_check.cmake
+			DB_SIZE 2G PARAMS 1000)
+
+#   take very long time to run
+#	add_engine_test(ENGINE svector
+#			BINARY pmemobj_error_handling_tx_oom
+#			TRACERS none memcheck
+#			SCRIPT pmemobj_based/default.cmake
+#			DB_SIZE 200M)
+
+	add_engine_test(ENGINE svector
+			BINARY pmemobj_error_handling_create
+			TRACERS none memcheck
+			SCRIPT pmemobj_based/pmemobj/error_handling_create.cmake)
+
+	add_engine_test(ENGINE svector
+			BINARY pmemobj_put_get_std_map_oid
+			TRACERS none memcheck pmemcheck
+			SCRIPT pmemobj_based/pmemobj/put_get_std_map_oid.cmake
+			PARAMS 1000 100 200)
+
+	add_engine_test(ENGINE svector
+			BINARY put_get_std_map
+			TRACERS none memcheck pmemcheck
+			SCRIPT pmemobj_based/pmemobj/put_get_std_map_force_create.cmake
+			PARAMS 1000 100 200)
+
+#   does not support count_above yet, but get_above/below works
+#	add_engine_test(ENGINE svector
+#			BINARY sorted_iterate
+#			TRACERS none
+#			SCRIPT pmemobj_based/default.cmake)
+endif(ENGINE_SVECTOR)
 ###################################### CMAP ####################################
 if(ENGINE_CMAP)
 	add_engine_test(ENGINE cmap

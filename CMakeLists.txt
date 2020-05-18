@@ -38,8 +38,8 @@ endif()
 # Each engine can be enabled separately.
 # By default all experimental engines are turned off.
 option(ENGINE_CMAP "enable cmap engine" ON)
-option(ENGINE_VCMAP "enable vcmap engine" ON)
-option(ENGINE_VSMAP "enable vsmap engine" ON)
+option(ENGINE_VCMAP "enable vcmap engine" OFF)
+option(ENGINE_VSMAP "enable vsmap engine" OFF)
 option(ENGINE_SVECTOR "enable svector engine" ON)
 option(ENGINE_CACHING "enable experimental caching engine" OFF)
 option(ENGINE_STREE "enable experimental stree engine" OFF)
